@@ -20,18 +20,15 @@
  *     filename    string Filename to save image as
  *     font        string Path to font file
  *     memebase    string Path to base image
- *     textsize    int Font size
- *     textfit     bool Fit text to image
- *     linespacing int Line spacing // Pending
- *     padding     int Padding between text and image
+ *     textsize    int    Font size
+ *     textfit     bool   Fit text to image
+ *     linespacing int    Line spacing // Pending
+ *     padding     int    Padding between text and image
  * @return void
  */
 function memegen_build_image( $args = array() ) {
 
 	list( $width, $height ) = getimagesize( $args['memebase'] );
-
-	// $args['linespacing'] = intval( $args['linespacing'] );
-	// 	if ( count( $args['text'] ) < 2 ) $args['linespacing'] = 0;
 
 	$args['textsize'] = empty( $args['textsize'] ) ? round( $height/10 ) : $args['textsize'];
 
@@ -47,38 +44,6 @@ function memegen_build_image( $args = array() ) {
 	$textcolor = imagecolorallocate( $im, 255, 255, 255 );
 
 	$angle = 0;
-	/*
-	$boxes = array(); // text box boundaries
-
-	// we're stacking multiple lines - get the total height
-	$total_textbox_height = 0;
-	foreach( $text as $t ) {
-		// https://gist.github.com/trepmal/7940059
-		$_box = imageftbbox( $textsize, $angle, $font, $t );
-		$boxes[] = $_box;
-
-		$total_textbox_height += $_box[3] - $_box[5] + $linespacing;
-	}
-
-	// now go back through each line, and place it on the image
-	$tth = $total_textbox_height;
-	foreach ( $text as $k => $t ) {
-		$_box = $boxes[ $k ]; // our bounding boxes were calculated above, just retrieve them
-
-		$box_width = $_box[4] - $_box[6];
-		$box_height = $_box[3] - $_box[5] + $linespacing;
-		$tth -= $box_height;
-
-		$from_side = ($width - $box_width)/2;
-		// magic math to get vertical centering
-		$from_top = ($height + $total_textbox_height)/2  - $tth - $linespacing/2;
-
-		// add text to image
-		// imagealphablending($im, true); // must be set to make sure font renders properly
-		imagettftext( $im, $textsize, $angle, $from_side, $from_top, $textcolor, $font, $t );
-
-	}
-	*/
 
 	$top_text = strtoupper( trim( $args['top_text'] ) );
 	$bottom_text = strtoupper( trim( $args['bottom_text'] ) );
@@ -182,8 +147,15 @@ function memegen_sanitize( $input ) {
 	return $input;
 }
 
-// Example
+######## ##     ##    ###    ##     ## ########  ##       ########
+##        ##   ##    ## ##   ###   ### ##     ## ##       ##
+##         ## ##    ##   ##  #### #### ##     ## ##       ##
+######      ###    ##     ## ## ### ## ########  ##       ######
+##         ## ##   ######### ##     ## ##        ##       ##
+##        ##   ##  ##     ## ##     ## ##        ##       ##
+######## ##     ## ##     ## ##     ## ##        ######## ########
 
+// if form not submitted, show it and bail
 if ( ! isset( $_GET['top_text'] ) && ! isset( $_GET['bottom_text'] ) ) {
 	?>
 	<form>
@@ -196,10 +168,12 @@ if ( ! isset( $_GET['top_text'] ) && ! isset( $_GET['bottom_text'] ) ) {
 	die();
 }
 
+// get form submission (or defaults)
 $top_text = isset( $_GET['top_text'] ) ? $_GET['top_text'] : 'Damnit Jim, I\'m a doctor one two';
 $bottom_text = isset( $_GET['bottom_text'] ) ? $_GET['bottom_text'] : 'Not a plumber';
 $filename = memegen_sanitize( $bottom_text );
 
+// setup args for image
 $args = array(
 	'top_text'    => $top_text,
 	'bottom_text' => $bottom_text,
@@ -208,10 +182,10 @@ $args = array(
 	'memebase'    => dirname(__FILE__) .'/bones.jpg',
 	'textsize'    => 40,
 	'textfit'     => true,
-	'linespacing' => 0,
 	'padding'     => 10,
 );
 
+// create and output image
 memegen_build_image( $args );
 
 //
